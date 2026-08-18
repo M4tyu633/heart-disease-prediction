@@ -162,9 +162,19 @@ export default function HeartDiseaseApp() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Age */}
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs">
+                    <div className="flex justify-between items-center text-xs">
                       <label className="text-slate-300 font-medium">Age</label>
-                      <span className="text-sky-400 font-mono font-bold">{patient.age} yrs</span>
+                      <div className="flex items-center gap-1 bg-slate-950/80 border border-slate-700/80 rounded-md px-2 py-0.5 focus-within:border-sky-400 transition">
+                        <input
+                          type="number"
+                          min={20}
+                          max={95}
+                          value={patient.age}
+                          onChange={(e) => setPatient({ ...patient, age: Math.min(95, Math.max(18, parseInt(e.target.value) || 0)) })}
+                          className="w-8 bg-transparent text-right font-mono font-bold text-xs text-sky-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="text-[11px] text-slate-400">yrs</span>
+                      </div>
                     </div>
                     <input
                       type="range"
@@ -199,9 +209,19 @@ export default function HeartDiseaseApp() {
 
                   {/* Resting Blood Pressure */}
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs">
+                    <div className="flex justify-between items-center text-xs">
                       <label className="text-slate-300 font-medium">Resting BP (trestbps)</label>
-                      <span className="text-sky-400 font-mono font-bold">{patient.trestbps} mm Hg</span>
+                      <div className="flex items-center gap-1 bg-slate-950/80 border border-slate-700/80 rounded-md px-2 py-0.5 focus-within:border-sky-400 transition">
+                        <input
+                          type="number"
+                          min={80}
+                          max={220}
+                          value={patient.trestbps}
+                          onChange={(e) => setPatient({ ...patient, trestbps: Math.min(240, Math.max(70, parseInt(e.target.value) || 0)) })}
+                          className="w-10 bg-transparent text-right font-mono font-bold text-xs text-sky-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="text-[11px] text-slate-400">mm Hg</span>
+                      </div>
                     </div>
                     <input
                       type="range"
@@ -215,9 +235,19 @@ export default function HeartDiseaseApp() {
 
                   {/* Serum Cholesterol */}
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs">
+                    <div className="flex justify-between items-center text-xs">
                       <label className="text-slate-300 font-medium">Serum Cholesterol (chol)</label>
-                      <span className="text-sky-400 font-mono font-bold">{patient.chol} mg/dl</span>
+                      <div className="flex items-center gap-1 bg-slate-950/80 border border-slate-700/80 rounded-md px-2 py-0.5 focus-within:border-sky-400 transition">
+                        <input
+                          type="number"
+                          min={100}
+                          max={600}
+                          value={patient.chol}
+                          onChange={(e) => setPatient({ ...patient, chol: Math.min(600, Math.max(80, parseInt(e.target.value) || 0)) })}
+                          className="w-10 bg-transparent text-right font-mono font-bold text-xs text-sky-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="text-[11px] text-slate-400">mg/dl</span>
+                      </div>
                     </div>
                     <input
                       type="range"
@@ -252,9 +282,19 @@ export default function HeartDiseaseApp() {
 
                   {/* Max Heart Rate */}
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs">
+                    <div className="flex justify-between items-center text-xs">
                       <label className="text-slate-300 font-medium">Max Heart Rate (thalach)</label>
-                      <span className="text-sky-400 font-mono font-bold">{patient.thalch} bpm</span>
+                      <div className="flex items-center gap-1 bg-slate-950/80 border border-slate-700/80 rounded-md px-2 py-0.5 focus-within:border-sky-400 transition">
+                        <input
+                          type="number"
+                          min={60}
+                          max={220}
+                          value={patient.thalch}
+                          onChange={(e) => setPatient({ ...patient, thalch: Math.min(220, Math.max(50, parseInt(e.target.value) || 0)) })}
+                          className="w-10 bg-transparent text-right font-mono font-bold text-xs text-sky-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="text-[11px] text-slate-400">bpm</span>
+                      </div>
                     </div>
                     <input
                       type="range"
@@ -346,9 +386,20 @@ export default function HeartDiseaseApp() {
 
                   {/* ST Depression (Oldpeak) */}
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs">
+                    <div className="flex justify-between items-center text-xs">
                       <label className="text-slate-300 font-medium">ST Depression (oldpeak)</label>
-                      <span className="text-rose-400 font-mono font-bold">{patient.oldpeak.toFixed(1)} mm</span>
+                      <div className="flex items-center gap-1 bg-slate-950/80 border border-slate-700/80 rounded-md px-2 py-0.5 focus-within:border-rose-400 transition">
+                        <input
+                          type="number"
+                          step="0.1"
+                          min={0}
+                          max={7.0}
+                          value={patient.oldpeak}
+                          onChange={(e) => setPatient({ ...patient, oldpeak: Math.min(7.0, Math.max(0, parseFloat(e.target.value) || 0)) })}
+                          className="w-10 bg-transparent text-right font-mono font-bold text-xs text-rose-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="text-[11px] text-slate-400">mm</span>
+                      </div>
                     </div>
                     <input
                       type="range"
@@ -364,44 +415,72 @@ export default function HeartDiseaseApp() {
                     {/* Slope of ST Segment */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-300">ST Slope</label>
-                      <select
-                        value={patient.slope}
-                        onChange={(e) => setPatient({ ...patient, slope: e.target.value as any })}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-rose-400"
-                      >
-                        <option value="upsloping">Upsloping (Normal)</option>
-                        <option value="flat">Flat (Abnormal)</option>
-                        <option value="downsloping">Downsloping (Severe)</option>
-                      </select>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {[
+                          { id: "upsloping", label: "Up" },
+                          { id: "flat", label: "Flat" },
+                          { id: "downsloping", label: "Down" },
+                        ].map((s) => (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => setPatient({ ...patient, slope: s.id as any })}
+                            className={`py-2 text-[11px] font-semibold rounded-lg border transition ${
+                              patient.slope === s.id
+                                ? "bg-rose-500/20 border-rose-400 text-rose-300"
+                                : "bg-slate-800/60 border-slate-700 text-slate-400 hover:text-slate-200"
+                            }`}
+                          >
+                            {s.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Fluoroscopy Vessels */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-slate-300">Major Vessels (0-3)</label>
-                      <select
-                        value={patient.ca}
-                        onChange={(e) => setPatient({ ...patient, ca: e.target.value as any })}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-rose-400"
-                      >
-                        <option value="0.0">0 Vessels</option>
-                        <option value="1.0">1 Vessel</option>
-                        <option value="2.0">2 Vessels</option>
-                        <option value="3.0">3 Vessels</option>
-                      </select>
+                      <label className="text-xs font-medium text-slate-300">Major Vessels (ca)</label>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {["0.0", "1.0", "2.0", "3.0"].map((v) => (
+                          <button
+                            key={v}
+                            type="button"
+                            onClick={() => setPatient({ ...patient, ca: v as any })}
+                            className={`py-2 text-xs font-bold rounded-lg border transition ${
+                              patient.ca === v
+                                ? "bg-rose-500/20 border-rose-400 text-rose-300"
+                                : "bg-slate-800/60 border-slate-700 text-slate-400 hover:text-slate-200"
+                            }`}
+                          >
+                            {v.split(".")[0]}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Thalassemia */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-300">Thalassemia</label>
-                      <select
-                        value={patient.thal}
-                        onChange={(e) => setPatient({ ...patient, thal: e.target.value as any })}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-rose-400"
-                      >
-                        <option value="normal">Normal</option>
-                        <option value="fixed defect">Fixed Defect</option>
-                        <option value="reversable defect">Reversible Defect</option>
-                      </select>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {[
+                          { id: "normal", label: "Normal" },
+                          { id: "fixed defect", label: "Fixed" },
+                          { id: "reversable defect", label: "Revers." },
+                        ].map((th) => (
+                          <button
+                            key={th.id}
+                            type="button"
+                            onClick={() => setPatient({ ...patient, thal: th.id as any })}
+                            className={`py-2 text-[11px] font-semibold rounded-lg border transition ${
+                              patient.thal === th.id
+                                ? "bg-rose-500/20 border-rose-400 text-rose-300"
+                                : "bg-slate-800/60 border-slate-700 text-slate-400 hover:text-slate-200"
+                            }`}
+                          >
+                            {th.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
