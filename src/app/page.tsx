@@ -205,6 +205,10 @@ export default function HeartDiseaseApp() {
             <EcgMonitor
               heartRate={patient.thalch}
               stDepression={patient.oldpeak}
+              slope={patient.slope}
+              restEcg={patient.restecg}
+              exang={patient.exang}
+              bloodPressure={patient.trestbps}
               riskPercentage={result.percentage}
               riskColor={result.riskColor}
             />

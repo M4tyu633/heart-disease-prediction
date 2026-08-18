@@ -6,23 +6,30 @@ import { Activity } from "lucide-react";
 export interface EcgMonitorProps {
   heartRate: number;      // thalch: 70-205 bpm
   stDepression: number;   // oldpeak: 0-6.0 mm
+  slope?: "upsloping" | "flat" | "downsloping";
+  restEcg?: "normal" | "st-t abnormality" | "lv hypertrophy";
+  exang?: "True" | "False";
+  bloodPressure?: number; // trestbps: 90-200 mm Hg
   riskPercentage: number; // 0-100
   riskColor: string;      // hex color from prediction
 }
 
 /**
- * High-Fidelity Clinical Lead II ECG Telemetry Monitor
- * Models true electrophysiology:
- * - P-wave atrial depolarization
- * - PR isoelectric segment
- * - Sharp QRS complex (<100ms ventricular depolarization)
- * - Ischemic ST segment depression (oldpeak calibrated)
- * - Asymmetric T-wave ventricular repolarization
- * - Micro-fluctuations mimicking physiological baseline & diagnostic bandwidth
+ * Dynamic Hospital Lead II ECG Telemetry Monitor
+ * Reacts in real-time to multi-parametric patient biomarkers:
+ * - Heart Rate (thalach) -> RR interval compression & sweep cadence
+ * - ST Depression (oldpeak) -> J-point & ST segment displacement
+ * - ST Segment Slope (slope) -> Upsloping, flat ischemic plateau, or downsloping strain
+ * - Resting ECG (restecg) -> Left Ventricular Hypertrophy (tall R/deep S/strain) or ST-T wave inversion
+ * - Exercise Angina (exang) & BP -> Ischemic stress jitter & QRS duration broadening
  */
 export default function EcgMonitor({
   heartRate = 75,
   stDepression = 0.0,
+  slope = "flat",
+  restEcg = "normal",
+  exang = "False",
+  bloodPressure = 130,
   riskPercentage = 25,
   riskColor = "#f43f5e",
 }: EcgMonitorProps) {
@@ -37,6 +44,9 @@ export default function EcgMonitor({
   // Clamped clinical parameters
   const clampedHr = Math.min(Math.max(heartRate, 50), 220);
   const clampedSt = Math.min(Math.max(stDepression, 0), 6.0);
+  const isLvh = restEcg === "lv hypertrophy";
+  const isSttAbnormal = restEcg === "st-t abnormality";
+  const isExang = exang === "True";
 
   // Virtual canvas geometry
   const WIDTH = 800;
@@ -45,95 +55,121 @@ export default function EcgMonitor({
   const ERASE_GAP = 32;
 
   /**
-   * Anatomically accurate PQRST voltage curve generator
-   * Normalized cardiac cycle t in [0, 1)
+   * Reactive Electrophysiological PQRST Waveform Function
    */
-  const getPqrstY = (t: number, stDep: number, xPos: number): number => {
-    // Subtle physiological baseline respiration wander + micro-analog noise
-    const wander = 0.7 * Math.sin((xPos / WIDTH) * 2 * Math.PI) + 0.3 * Math.sin(xPos * 0.18);
+  const getPqrstY = (t: number, xPos: number): number => {
+    // Subtle physiological baseline respiration wander
+    const respiration = 0.8 * Math.sin((xPos / WIDTH) * 2 * Math.PI) + 0.3 * Math.sin(xPos * 0.16);
+    // Ischemic micro-flutter if exercise angina is provoked
+    const ischemicJitter = isExang ? 0.6 * Math.sin(xPos * 1.8) * Math.cos(xPos * 0.9) : 0;
+    const wander = respiration + ischemicJitter;
 
-    // 1. Isoelectric Baseline (TP interval start)
+    // 1. Isoelectric Baseline (TP interval)
     if (t < 0.08) {
       return BASE_Y + wander;
     }
 
-    // 2. P Wave: Atrial depolarization (gentle smooth deflection, ~0.10s)
+    // 2. P Wave (Atrial depolarization, ~0.10s)
     if (t < 0.20) {
       const pProgress = (t - 0.08) / 0.12;
-      const pDeflection = 7.5 * Math.pow(Math.sin(pProgress * Math.PI), 1.3);
+      const pAmp = isLvh ? 9.5 : 7.0; // P mitrale tendency in LVH
+      const pDeflection = pAmp * Math.pow(Math.sin(pProgress * Math.PI), 1.3);
       return BASE_Y - pDeflection + wander;
     }
 
-    // 3. PR Segment: AV node conduction delay (flat isoelectric)
+    // 3. PR Segment (AV node isoelectric conduction delay)
     if (t < 0.30) {
       return BASE_Y + wander;
     }
 
-    // 4. Q Wave: Septal depolarization (crisp negative notch)
+    // 4. Q Wave (Septal depolarization notch)
     if (t < 0.34) {
       const qProgress = (t - 0.30) / 0.04;
-      const qDeflection = 5.5 * Math.sin(qProgress * Math.PI);
+      const qAmp = isLvh ? 7.5 : 5.0;
+      const qDeflection = qAmp * Math.sin(qProgress * Math.PI);
       return BASE_Y + qDeflection + wander;
     }
 
-    // 5. R Wave: Rapid ventricular depolarization (razor-sharp spike, ~30ms up / 30ms down)
+    // 5. R Wave (Ventricular Depolarization)
+    // LVH introduces high-voltage R waves (+25-30% amplitude)
+    const rHeight = isLvh ? 84.0 : 66.0;
     if (t < 0.40) {
       const rProgress = (t - 0.34) / 0.06;
       let rDeflection: number;
       if (rProgress <= 0.5) {
-        // Fast steep upstroke
         const up = rProgress / 0.5;
-        rDeflection = 68.0 * Math.pow(up, 1.6);
+        rDeflection = rHeight * Math.pow(up, 1.6);
       } else {
-        // Fast steep downstroke
         const down = (1 - rProgress) / 0.5;
-        rDeflection = 68.0 * Math.pow(down, 1.4);
+        rDeflection = rHeight * Math.pow(down, 1.4);
       }
       return BASE_Y - rDeflection + wander;
     }
 
-    // 6. S Wave: Late ventricular depolarization (sharp descent below baseline)
+    // 6. S Wave (Late ventricular depolarization)
+    // LVH deepens the S wave significantly
+    const sDepth = isLvh ? 26.0 : 17.5;
     if (t < 0.45) {
       const sProgress = (t - 0.40) / 0.05;
-      const sDeflection = 18.0 * Math.sin(sProgress * Math.PI);
+      const sDeflection = sDepth * Math.sin(sProgress * Math.PI);
       return BASE_Y + sDeflection + wander;
     }
 
-    // 7. ST Segment: Plateau phase & J-Point
-    // When stDep > 0, the J-point & ST segment is depressed below baseline
-    const stOffset = Math.min(stDep, 6.0) * 4.2; // 0 to 25px depression
+    // 7. ST Segment & J-Point
+    // Oldpeak ST depression + dynamic ST slope morphology
+    let stOffset = clampedSt * 4.2;
+    if (isLvh && stOffset < 4) stOffset = 6.5; // Secondary repolarization strain in LVH
+
     if (t < 0.62) {
       const stProgress = (t - 0.45) / 0.17;
-      // Smooth transition from S return into depressed ST segment plateau
+      let slopeModifier = 0;
+      if (slope === "downsloping") {
+        // Downward sagging from J point
+        slopeModifier = 5.0 * stProgress;
+      } else if (slope === "upsloping") {
+        // Quick ascent back toward baseline
+        slopeModifier = -4.5 * stProgress;
+      }
+
       const blend = Math.sin(stProgress * (Math.PI / 2));
-      return BASE_Y + stOffset * blend + wander;
+      return BASE_Y + (stOffset + slopeModifier) * blend + wander;
     }
 
-    // 8. T Wave: Asymmetric ventricular repolarization
+    // 8. T Wave (Ventricular Repolarization)
+    // In ST-T abnormality or severe LVH strain, T wave inverts negatively!
     if (t < 0.82) {
       const tProgress = (t - 0.62) / 0.20;
-      // Asymmetric skewed curve (slower ascent, steeper descent)
-      const tWave = 14.5 * Math.sin(Math.pow(tProgress, 0.85) * Math.PI);
-      const stRecovery = stOffset * (1 - tProgress);
-      return BASE_Y + stRecovery - tWave + wander;
+      const shouldInvertT = isSttAbnormal || (isLvh && clampedSt > 1.0);
+
+      if (shouldInvertT) {
+        // Inverted T-Wave (negative deflection below baseline)
+        const tWave = 13.0 * Math.sin(Math.pow(tProgress, 0.9) * Math.PI);
+        const stRecovery = stOffset * (1 - tProgress);
+        return BASE_Y + stRecovery + tWave + wander;
+      } else {
+        // Normal positive asymmetric T-Wave
+        const tWave = 14.5 * Math.sin(Math.pow(tProgress, 0.85) * Math.PI);
+        const stRecovery = stOffset * (1 - tProgress);
+        return BASE_Y + stRecovery - tWave + wander;
+      }
     }
 
-    // 9. TP Segment: Diastolic isoelectric pause
+    // 9. TP Segment (Diastolic isoelectric rest)
     return BASE_Y + wander;
   };
 
-  // Generate the full SVG path data across the width based on HR and ST depression
+  // Generate the full SVG path across width
   const { pathData, beatWidth } = useMemo(() => {
-    // Realistic beat spacing scaling with BPM
+    // Dynamic beat rate per screen based on heart rate
     const beatsPerScreen = Math.max(2.4, (clampedHr / 60) * 2.8);
     const bWidth = WIDTH / beatsPerScreen;
 
     const points: string[] = [];
-    const step = 1.5; // High resolution 1.5px sampling for razor-sharp fidelity
+    const step = 1.5;
 
     for (let x = 0; x <= WIDTH; x += step) {
       const t = (x % bWidth) / bWidth;
-      const y = getPqrstY(t, clampedSt, x);
+      const y = getPqrstY(t, x);
       if (x === 0) {
         points.push(`M ${x.toFixed(1)} ${y.toFixed(1)}`);
       } else {
@@ -142,9 +178,9 @@ export default function EcgMonitor({
     }
 
     return { pathData: points.join(" "), beatWidth: bWidth };
-  }, [clampedHr, clampedSt]);
+  }, [clampedHr, clampedSt, slope, restEcg, exang, bloodPressure]);
 
-  // RequestAnimationFrame 60fps sweep animation loop
+  // RequestAnimationFrame 60fps sweep loop
   useEffect(() => {
     const sweepDurationSec = Math.max(1.2, 3.2 * (75 / clampedHr));
     const sweepSpeedPxPerSec = WIDTH / sweepDurationSec;
@@ -155,12 +191,11 @@ export default function EcgMonitor({
       const dt = (currentTime - lastTimeRef.current) / 1000;
       lastTimeRef.current = currentTime;
 
-      // Advance sweep scanline
       sweepXRef.current = (sweepXRef.current + sweepSpeedPxPerSec * dt) % WIDTH;
       const currentSweepX = sweepXRef.current;
 
       const t = (currentSweepX % beatWidth) / beatWidth;
-      const currentSweepY = getPqrstY(t, clampedSt, currentSweepX);
+      const currentSweepY = getPqrstY(t, currentSweepX);
 
       if (sweepCursorRef.current) {
         sweepCursorRef.current.setAttribute(
@@ -195,19 +230,26 @@ export default function EcgMonitor({
         cancelAnimationFrame(animFrameIdRef.current);
       }
     };
-  }, [clampedHr, clampedSt, beatWidth]);
+  }, [clampedHr, beatWidth, clampedSt, slope, restEcg, exang]);
 
   const pulseIntervalSec = (60 / clampedHr).toFixed(2);
+
+  // Diagnostic Rhythm Classification
+  const rhythmTag = useMemo(() => {
+    if (clampedHr >= 100) return "SINUS TACHYCARDIA";
+    if (clampedHr < 60) return "SINUS BRADYCARDIA";
+    return "NORMAL SINUS RHYTHM";
+  }, [clampedHr]);
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[155px] bg-[#06080d] rounded-2xl border border-slate-800/90 overflow-hidden shadow-2xl flex flex-col justify-between select-none"
+      className="relative w-full h-[165px] bg-[#06080d] rounded-2xl border border-slate-800/90 overflow-hidden shadow-2xl flex flex-col justify-between select-none"
       style={{
         boxShadow: `inset 0 0 35px rgba(0, 0, 0, 0.95), 0 8px 24px rgba(0, 0, 0, 0.5)`,
       }}
     >
-      {/* Top Status Overlay */}
+      {/* Top Status Header */}
       <div className="relative z-20 flex items-center justify-between px-4 pt-2.5 pointer-events-none">
         <div className="flex items-center gap-2.5">
           <div className="w-6 h-6 rounded-lg bg-[#0e121a] border border-slate-700/80 flex items-center justify-center">
@@ -221,14 +263,18 @@ export default function EcgMonitor({
               <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-800/80 text-cyan-400 font-semibold border border-cyan-500/20">
                 LEAD II
               </span>
+              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-900 text-slate-400 border border-slate-800 hidden sm:inline">
+                {rhythmTag}
+              </span>
             </div>
             <span className="text-[10px] font-mono text-slate-400">
-              25mm/s · 10mm/mV · {clampedSt > 0.5 ? `ST Dep: ${clampedSt.toFixed(1)}mm` : "ST: Isoelectric"}
+              25mm/s · 10mm/mV · {clampedSt > 0.5 ? `ST Dep: ${clampedSt.toFixed(1)}mm (${slope})` : "ST: Isoelectric"}
+              {isLvh ? " · LVH Voltage" : isSttAbnormal ? " · T-Wave Inversion" : ""}
             </span>
           </div>
         </div>
 
-        {/* BPM readout with synchronized heartbeat pulse */}
+        {/* BPM readout with synchronized pulse */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0e121a]/95 border border-slate-800 shadow-md">
             <span
@@ -252,7 +298,7 @@ export default function EcgMonitor({
         </div>
       </div>
 
-      {/* SVG Waveform Canvas */}
+      {/* Center SVG Waveform Canvas */}
       <div className="absolute inset-0 w-full h-full">
         <svg
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -360,9 +406,8 @@ export default function EcgMonitor({
             />
           </g>
 
-          {/* 2. Active Trace (Sharp, Crisp, Authentic Hospital Telemetry) */}
+          {/* 2. Active Trace */}
           <g clipPath="url(#ecg-bright-clip)">
-            {/* Subtle Bloom Pass */}
             <path
               d={pathData}
               fill="none"
@@ -373,7 +418,6 @@ export default function EcgMonitor({
               filter="url(#ecg-glow)"
               opacity="0.45"
             />
-            {/* Crisp High-Definition Core Stroke */}
             <path
               d={pathData}
               fill="none"
@@ -436,9 +480,19 @@ export default function EcgMonitor({
         </div>
 
         <div className="flex items-center gap-2">
+          {isLvh ? (
+            <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold border border-purple-500/40">
+              LVH STRAIN PATTERN
+            </span>
+          ) : isSttAbnormal ? (
+            <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/40">
+              ST-T INVERSION
+            </span>
+          ) : null}
+
           {clampedSt > 0.5 ? (
             <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-semibold border border-rose-500/40 animate-pulse">
-              ST DEPRESSION ({clampedSt.toFixed(1)} mm)
+              ST DEP ({clampedSt.toFixed(1)} mm, {slope})
             </span>
           ) : (
             <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -451,7 +505,6 @@ export default function EcgMonitor({
         </div>
       </div>
 
-      {/* Synchronized Pulse Keyframe */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes ecg-heartbeat {
           0% { transform: scale(0.9); opacity: 0.6; }
