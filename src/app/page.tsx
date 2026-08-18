@@ -15,6 +15,8 @@ import {
   Stethoscope,
   ShieldCheck,
   Zap,
+  Users,
+  Printer,
 } from "lucide-react";
 import {
   PatientInputs,
@@ -23,10 +25,16 @@ import {
   FEATURE_IMPORTANCES,
   predictHeartRisk,
 } from "@/data/modelData";
+import EcgMonitor from "@/components/EcgMonitor";
+import RadialGauge from "@/components/RadialGauge";
+import WaterfallChart from "@/components/WaterfallChart";
+import PopulationModal from "@/components/PopulationModal";
+import ClinicalReport from "@/components/ClinicalReport";
 
 export default function HeartDiseaseApp() {
   const [patient, setPatient] = useState<PatientInputs>(SAMPLE_PATIENTS[1]);
   const [activeTab, setActiveTab] = useState<"calculator" | "benchmark" | "dataset">("calculator");
+  const [showPopulationModal, setShowPopulationModal] = useState(false);
 
   // Calculate live prediction score
   const result = useMemo(() => predictHeartRisk(patient), [patient]);
@@ -130,6 +138,14 @@ export default function HeartDiseaseApp() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left 7 Cols: Patient Biomarkers & Clinical Parameters */}
             <div className="lg:col-span-7 space-y-6">
+              {/* Real-Time Telemetry ECG Monitor */}
+              <EcgMonitor
+                heartRate={patient.thalch}
+                stDepression={patient.oldpeak}
+                riskPercentage={result.percentage}
+                riskColor={result.riskColor}
+              />
+
               {/* Section 1: Demographics & Hemodynamics */}
               <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-5">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -418,34 +434,13 @@ export default function HeartDiseaseApp() {
                   </span>
                 </div>
 
-                {/* Big Score Display */}
-                <div className="text-center py-4 space-y-2">
-                  <div className="flex items-baseline justify-center gap-1">
-                    <span
-                      className="text-6xl font-black tracking-tight font-mono transition-all duration-300"
-                      style={{ color: result.riskColor }}
-                    >
-                      {result.percentage}%
-                    </span>
-                    <span className="text-slate-400 text-sm font-medium">probability</span>
-                  </div>
-
-                  {/* Custom Progress Meter */}
-                  <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-0.5 border border-slate-700/60 mt-3">
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        width: `${result.percentage}%`,
-                        backgroundColor: result.riskColor,
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-[10px] text-slate-400 px-1 pt-1 font-mono">
-                    <span>0% Healthy</span>
-                    <span>35% Moderate</span>
-                    <span>65% Critical</span>
-                    <span>100%</span>
-                  </div>
+                {/* Radial Speedometer Gauge */}
+                <div className="py-2 flex justify-center">
+                  <RadialGauge
+                    percentage={result.percentage}
+                    riskLevel={result.riskLevel}
+                    riskColor={result.riskColor}
+                  />
                 </div>
 
                 {/* Clinical Guideline Recommendation */}
@@ -464,6 +459,24 @@ export default function HeartDiseaseApp() {
                     {result.clinicalAdvice}
                   </p>
                 </div>
+
+                {/* Action Buttons Row */}
+                <div className="flex gap-3 mt-4">
+                  <button
+                    onClick={() => setShowPopulationModal(true)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 text-xs font-semibold transition-all duration-200 active:scale-[0.97]"
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    Compare Population
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 hover:border-slate-600 text-slate-300 text-xs font-semibold transition-all duration-200 active:scale-[0.97]"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    Print Report
+                  </button>
+                </div>
               </div>
 
               {/* Patient Biomarker Attribution Waterfall */}
@@ -475,33 +488,11 @@ export default function HeartDiseaseApp() {
                       Biomarker Attribution Drivers
                     </h3>
                   </div>
-                  <span className="text-[11px] text-slate-400">SHAP / Logit Impact</span>
+                  <span className="text-[11px] text-slate-400 font-mono">SHAP / Logit Impact</span>
                 </div>
 
-                <div className="space-y-3 pt-1">
-                  {result.contributions.map((item, idx) => (
-                    <div key={idx} className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-slate-300 font-medium">{item.label}</span>
-                        <span
-                          className={`font-mono text-xs font-bold ${
-                            item.direction === "risk" ? "text-rose-400" : "text-emerald-400"
-                          }`}
-                        >
-                          {item.direction === "risk" ? "+ " : "- "}
-                          {item.impact.toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${
-                            item.direction === "risk" ? "bg-rose-500" : "bg-emerald-500"
-                          }`}
-                          style={{ width: `${Math.min(item.impact * 70, 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                <div className="pt-1">
+                  <WaterfallChart contributions={result.contributions} />
                 </div>
               </div>
             </div>
@@ -639,6 +630,16 @@ export default function HeartDiseaseApp() {
           </div>
         </div>
       </footer>
+
+      {/* Population Comparison Modal */}
+      <PopulationModal
+        isOpen={showPopulationModal}
+        onClose={() => setShowPopulationModal(false)}
+        patient={patient}
+      />
+
+      {/* Hidden Print-Optimized Clinical Report */}
+      <ClinicalReport patient={patient} result={result} />
     </div>
   );
 }

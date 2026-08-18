@@ -338,3 +338,13 @@ export function predictHeartRisk(patient: PatientInputs) {
     contributions: contributions.slice(0, 6),
   };
 }
+
+export const POPULATION_STATS = {
+  age: { mean: 53.5, median: 54, sd: 9.4, min: 28, max: 77, label: 'Age (years)' },
+  trestbps: { mean: 132.1, median: 130, sd: 18.5, min: 90, max: 200, label: 'Resting BP (mm Hg)' },
+  chol: { mean: 199.1, median: 223, sd: 110.2, min: 85, max: 603, label: 'Serum Cholesterol (mg/dl)' },
+  thalch: { mean: 137.5, median: 140, sd: 25.1, min: 60, max: 202, label: 'Max Heart Rate (bpm)' },
+  oldpeak: { mean: 0.88, median: 0.5, sd: 1.05, min: 0, max: 6.2, label: 'ST Depression (mm)' },
+  ca: { mean: 0.75, median: 0, sd: 1.02, min: 0, max: 3, label: 'Major Vessels (0-3)' },
+};
+
