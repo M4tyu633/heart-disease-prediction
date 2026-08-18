@@ -9,9 +9,8 @@ export interface RadialGaugeProps {
 }
 
 /**
- * Modern High-Tech Clinical Radial Gauge
- * Clean semi-circular telemetry meter with smooth gradient arc,
- * dynamic indicator glow, crisp tick marks, and centered typography with zero overlap.
+ * Clean Clinical Risk Arc Meter
+ * Unified typography matching portfolio styling with smooth gradient telemetry arc.
  */
 export default function RadialGauge({
   percentage = 0,
@@ -24,19 +23,14 @@ export default function RadialGauge({
 
   const clamped = Math.min(Math.max(percentage, 0), 100);
 
-  // Gauge geometry
+  // Geometry
   const CX = 140;
-  const CY = 122;
+  const CY = 125;
   const RADIUS = 92;
-  const STROKE = 10;
+  const STROKE = 12;
 
   const ARC_LENGTH = Math.PI * RADIUS; // ~289 px
   const strokeDashoffset = ARC_LENGTH * (1 - clamped / 100);
-
-  // Indicator angle for the glowing tip along the arc
-  const angleRad = Math.PI * (1 - clamped / 100);
-  const pointerX = CX - RADIUS * Math.cos(angleRad);
-  const pointerY = CY - RADIUS * Math.sin(angleRad);
 
   const ticks = [
     { p: 0, label: "0%" },
@@ -47,15 +41,15 @@ export default function RadialGauge({
   ];
 
   return (
-    <div className="relative w-full max-w-[280px] h-[160px] flex flex-col items-center justify-start select-none mx-auto">
-      {/* Ambient background glow */}
+    <div className="relative w-full max-w-[280px] h-[155px] flex flex-col items-center justify-start select-none mx-auto">
+      {/* Ambient soft glow */}
       <div
-        className="absolute top-2 w-48 h-32 rounded-full blur-3xl pointer-events-none transition-all duration-700 opacity-20"
+        className="absolute top-0 w-48 h-32 rounded-full blur-3xl pointer-events-none transition-all duration-700 opacity-20"
         style={{ backgroundColor: riskColor }}
       />
 
       <svg
-        viewBox="0 0 280 155"
+        viewBox="0 0 280 150"
         className="w-full h-full overflow-visible"
       >
         <defs>
@@ -69,7 +63,7 @@ export default function RadialGauge({
           </linearGradient>
 
           <filter id={glowId} x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feGaussianBlur stdDeviation="5" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -77,28 +71,28 @@ export default function RadialGauge({
           </filter>
         </defs>
 
-        {/* 1. Track background */}
+        {/* 1. Inactive Track Background */}
         <path
           d={`M ${CX - RADIUS} ${CY} A ${RADIUS} ${RADIUS} 0 0 1 ${CX + RADIUS} ${CY}`}
           fill="none"
-          stroke="#18202f"
+          stroke="#161e2e"
           strokeWidth={STROKE}
           strokeLinecap="round"
         />
 
-        {/* 2. Subdued tick marks */}
+        {/* 2. Subdued Tick Marks */}
         {ticks.map(({ p, label }) => {
           const a = (p / 100) * Math.PI;
           const r1 = RADIUS + 8;
-          const r2 = RADIUS + 14;
-          const rt = RADIUS + 23;
+          const r2 = RADIUS + 13;
+          const rt = RADIUS + 22;
 
           const x1 = CX - r1 * Math.cos(a);
           const y1 = CY - r1 * Math.sin(a);
           const x2 = CX - r2 * Math.cos(a);
           const y2 = CY - r2 * Math.sin(a);
           const xt = CX - rt * Math.cos(a);
-          const yt = CY - rt * Math.sin(a) + (p === 0 || p === 100 ? 2 : 0);
+          const yt = CY - rt * Math.sin(a) + (p === 0 || p === 100 ? 1 : 0);
 
           return (
             <g key={p}>
@@ -117,9 +111,9 @@ export default function RadialGauge({
                 textAnchor="middle"
                 dominantBaseline="central"
                 fill="#64748b"
-                fontSize="8.5"
-                fontFamily="ui-monospace, monospace"
-                fontWeight="500"
+                fontSize="9"
+                fontFamily="system-ui, -apple-system, sans-serif"
+                fontWeight="600"
               >
                 {label}
               </text>
@@ -141,7 +135,7 @@ export default function RadialGauge({
           }}
         />
 
-        {/* 4. Glowing Arc Pass */}
+        {/* 4. Glowing Bloom Arc Pass */}
         <path
           d={`M ${CX - RADIUS} ${CY} A ${RADIUS} ${RADIUS} 0 0 1 ${CX + RADIUS} ${CY}`}
           fill="none"
@@ -151,45 +145,25 @@ export default function RadialGauge({
           strokeDasharray={ARC_LENGTH}
           strokeDashoffset={strokeDashoffset}
           filter={`url(#${glowId})`}
-          opacity="0.3"
+          opacity="0.35"
           style={{
             transition: "stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         />
-
-        {/* 5. Glowing Pointer Beacon at the edge of the active arc */}
-        {clamped > 0 && (
-          <g>
-            <circle
-              cx={pointerX}
-              cy={pointerY}
-              r="6"
-              fill={riskColor}
-              filter={`url(#${glowId})`}
-              opacity="0.85"
-            />
-            <circle
-              cx={pointerX}
-              cy={pointerY}
-              r="3.5"
-              fill="#ffffff"
-            />
-          </g>
-        )}
       </svg>
 
-      {/* Centered Clean Numerical Readout */}
+      {/* Centered Typography matching Portfolio */}
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-center text-center">
         <div className="flex items-baseline justify-center gap-0.5 leading-none">
           <span
-            className="text-5xl font-black font-mono tracking-tight transition-colors duration-500"
+            className="text-5xl font-black tracking-tight transition-colors duration-500 font-sans"
             style={{ color: riskColor }}
           >
             {clamped}
           </span>
-          <span className="text-base font-bold text-slate-400 font-mono">%</span>
+          <span className="text-xl font-bold text-slate-400 font-sans">%</span>
         </div>
-        <span className="text-[10px] font-mono tracking-wider text-slate-400 uppercase mt-1">
+        <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase mt-1 font-sans">
           Probability of CAD
         </span>
       </div>
