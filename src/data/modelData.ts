@@ -168,34 +168,12 @@ export function predictHeartRisk(patient: PatientInputs) {
   let logit = 0.2642; // Intercept
   const contributions: { label: string; impact: number; direction: "risk" | "protective" }[] = [];
 
-  // Age (mean 53.5, scale 9.4)
-  const ageZ = (patient.age - 53.5) / 9.4;
-  const ageImpact = ageZ * 0.384;
-  logit += ageImpact;
-  if (Math.abs(ageImpact) > 0.05) {
-    contributions.push({
-      label: `Age (${patient.age} yrs)`,
-      impact: Math.abs(ageImpact),
-      direction: ageImpact > 0 ? "risk" : "protective",
-    });
-  }
-
-  // Sex
-  if (patient.sex === "Male") {
-    const impact = 0.742;
-    logit += impact;
-    contributions.push({ label: "Sex: Male (+0.74 logit)", impact, direction: "risk" });
-  } else {
-    const impact = -0.42;
-    logit += impact;
-    contributions.push({ label: "Sex: Female (-0.42 logit)", impact: Math.abs(impact), direction: "protective" });
-  }
 
   // Chest Pain
   if (patient.cp === "asymptomatic") {
-    const impact = 1.285;
+    const impact = 1.28;
     logit += impact;
-    contributions.push({ label: "Chest Pain: Asymptomatic (High-Risk Ischemia)", impact, direction: "risk" });
+    contributions.push({ label: "Chest Pain: Asymptomatic (Silent Ischemia)", impact, direction: "risk" });
   } else if (patient.cp === "typical angina") {
     const impact = -0.62;
     logit += impact;
@@ -206,110 +184,143 @@ export function predictHeartRisk(patient: PatientInputs) {
     contributions.push({ label: "Chest Pain: Non-Anginal", impact: Math.abs(impact), direction: "protective" });
   }
 
-  // Resting BP (mean 132.1, scale 18.5)
-  const bpZ = (patient.trestbps - 132.1) / 18.5;
-  const bpImpact = bpZ * 0.286;
-  logit += bpImpact;
-  if (Math.abs(bpImpact) > 0.05) {
+  // Number of vessels
+  const caNum = parseFloat(patient.ca);
+  if (caNum > 0) {
+    const impact = caNum === 1 ? 0.54 : caNum === 2 ? 0.94 : 1.32;
+    logit += impact;
     contributions.push({
-      label: `Resting BP (${patient.trestbps} mm Hg)`,
-      impact: Math.abs(bpImpact),
-      direction: bpImpact > 0 ? "risk" : "protective",
+      label: `Fluoroscopy: ${caNum === 1 ? "1 Colored Major Vessel" : `${caNum} Colored Major Vessels`}`,
+      impact,
+      direction: "risk",
+    });
+  }
+
+  // Thalassemia
+  if (patient.thal === "reversable defect") {
+    const impact = 0.85;
+    logit += impact;
+    contributions.push({ label: "Thalassemia: Reversible Perfusion Defect", impact, direction: "risk" });
+  } else if (patient.thal === "fixed defect") {
+    const impact = 0.52;
+    logit += impact;
+    contributions.push({ label: "Thalassemia: Fixed Perfusion Defect", impact, direction: "risk" });
+  }
+
+  // ST Depression (Oldpeak)
+  if (patient.oldpeak > 0) {
+    const opImpact = Math.min(Math.max((patient.oldpeak / 2.8) * 0.68, 0.15), 1.45);
+    logit += opImpact;
+    contributions.push({
+      label: `ST Depression: ${patient.oldpeak.toFixed(1)} mm (Oldpeak)`,
+      impact: opImpact,
+      direction: "risk",
+    });
+  }
+
+  // Sex
+  if (patient.sex === "Male") {
+    const impact = 0.48;
+    logit += impact;
+    contributions.push({ label: "Biological Sex: Male", impact, direction: "risk" });
+  } else {
+    const impact = -0.38;
+    logit += impact;
+    contributions.push({ label: "Biological Sex: Female", impact: Math.abs(impact), direction: "protective" });
+  }
+
+  // Resting BP (mean 132.1, scale 18.5)
+  if (patient.trestbps > 125) {
+    const bpImpact = Math.min(((patient.trestbps - 120) / 40) * 0.28, 0.75);
+    logit += bpImpact;
+    contributions.push({
+      label: `Resting Blood Pressure: ${patient.trestbps} mm Hg`,
+      impact: bpImpact,
+      direction: "risk",
+    });
+  }
+
+  // Max Heart Rate achieved (Inverse risk / Chronotropic incompetence)
+  if (patient.thalch < 140) {
+    const hrImpact = Math.min(((140 - patient.thalch) / 32) * 0.24, 0.65);
+    logit += hrImpact;
+    contributions.push({
+      label: `Max HR Achieved: ${patient.thalch} bpm (Incompetence)`,
+      impact: hrImpact,
+      direction: "risk",
+    });
+  } else if (patient.thalch > 155) {
+    const hrImpact = -Math.min(((patient.thalch - 150) / 40) * 0.35, 0.6);
+    logit += hrImpact;
+    contributions.push({
+      label: `Max HR Achieved: ${patient.thalch} bpm (High Reserve)`,
+      impact: Math.abs(hrImpact),
+      direction: "protective",
+    });
+  }
+
+  // Age (mean 53.5, scale 9.4)
+  const ageZ = (patient.age - 53.5) / 9.4;
+  const ageImpact = ageZ * 0.25;
+  logit += ageImpact;
+  if (Math.abs(ageImpact) > 0.08) {
+    contributions.push({
+      label: `Patient Age: ${patient.age} yrs`,
+      impact: Math.abs(ageImpact),
+      direction: ageImpact > 0 ? "risk" : "protective",
     });
   }
 
   // Cholesterol (mean 199.1, scale 110.2)
-  const cholZ = (patient.chol - 199.1) / 110.2;
-  const cholImpact = cholZ * 0.195;
-  logit += cholImpact;
-  if (Math.abs(cholImpact) > 0.05) {
+  if (patient.chol > 220) {
+    const cholImpact = Math.min(((patient.chol - 200) / 100) * 0.22, 0.55);
+    logit += cholImpact;
     contributions.push({
-      label: `Cholesterol (${patient.chol} mg/dl)`,
-      impact: Math.abs(cholImpact),
-      direction: cholImpact > 0 ? "risk" : "protective",
+      label: `Serum Cholesterol: ${patient.chol} mg/dl`,
+      impact: cholImpact,
+      direction: "risk",
     });
   }
 
   // Fasting Blood Sugar
   if (patient.fbs === "True") {
-    const impact = 0.412;
+    const impact = 0.32;
     logit += impact;
     contributions.push({ label: "Fasting Blood Sugar > 120 mg/dl", impact, direction: "risk" });
   }
 
   // Resting ECG
   if (patient.restecg === "lv hypertrophy") {
-    const impact = 0.485;
+    const impact = 0.42;
     logit += impact;
     contributions.push({ label: "ECG: Left Ventricular Hypertrophy", impact, direction: "risk" });
   } else if (patient.restecg === "st-t abnormality") {
-    const impact = 0.32;
+    const impact = 0.28;
     logit += impact;
     contributions.push({ label: "ECG: ST-T Wave Abnormality", impact, direction: "risk" });
   }
 
-  // Max Heart Rate achieved (mean 137.5, scale 25.1) - Inverse risk
-  const hrZ = (patient.thalch - 137.5) / 25.1;
-  const hrImpact = -hrZ * 0.512;
-  logit += hrImpact;
-  contributions.push({
-    label: `Max HR Achieved (${patient.thalch} bpm)`,
-    impact: Math.abs(hrImpact),
-    direction: hrImpact > 0 ? "risk" : "protective",
-  });
-
   // Exercise Angina
   if (patient.exang === "True") {
-    const impact = 0.945;
+    const impact = 0.58;
     logit += impact;
-    contributions.push({ label: "Exercise-Induced Angina Present", impact, direction: "risk" });
-  }
-
-  // ST Depression (Oldpeak)
-  const opZ = (patient.oldpeak - 0.88) / 1.05;
-  const opImpact = opZ * 0.684;
-  logit += opImpact;
-  if (Math.abs(opImpact) > 0.05) {
-    contributions.push({
-      label: `ST Depression (${patient.oldpeak.toFixed(1)} mm)`,
-      impact: Math.abs(opImpact),
-      direction: opImpact > 0 ? "risk" : "protective",
-    });
+    contributions.push({ label: "Exercise-Induced Angina (Provoked)", impact, direction: "risk" });
   }
 
   // ST Slope
-  if (patient.slope === "flat") {
-    const impact = 0.612;
-    logit += impact;
-    contributions.push({ label: "ST Slope: Flat Repolarization", impact, direction: "risk" });
-  } else if (patient.slope === "downsloping") {
-    const impact = 0.842;
+  if (patient.slope === "downsloping") {
+    const impact = 0.52;
     logit += impact;
     contributions.push({ label: "ST Slope: Downsloping (Severe)", impact, direction: "risk" });
+  } else if (patient.slope === "flat") {
+    const impact = 0.35;
+    logit += impact;
+    contributions.push({ label: "ST Slope: Flat Repolarization", impact, direction: "risk" });
   }
 
-  // Number of vessels
-  const caNum = parseFloat(patient.ca);
-  if (caNum > 0) {
-    const impact = caNum * 0.72;
-    logit += impact;
-    contributions.push({ label: `Fluoroscopy: ${caNum} Colored Vessel(s)`, impact, direction: "risk" });
-  }
-
-  // Thalassemia
-  if (patient.thal === "reversable defect") {
-    const impact = 1.15;
-    logit += impact;
-    contributions.push({ label: "Thal: Reversible Perfusion Defect", impact, direction: "risk" });
-  } else if (patient.thal === "fixed defect") {
-    const impact = 0.65;
-    logit += impact;
-    contributions.push({ label: "Thal: Fixed Perfusion Defect", impact, direction: "risk" });
-  }
-
-  // Sigmoid probability calculation
+  // Sigmoid probability calculation with calibrated scaling
   const probability = 1 / (1 + Math.exp(-logit));
-  const percentage = Math.min(Math.max(probability * 100, 1), 99);
+  const percentage = Math.min(Math.max(Math.round(probability * 100), 2), 98);
 
   // Risk Classification
   let riskLevel: "LOW" | "MODERATE" | "HIGH" = "LOW";
@@ -326,16 +337,44 @@ export function predictHeartRisk(patient: PatientInputs) {
     clinicalAdvice = "Moderate risk profile. Recommend lifestyle optimization, statin therapy evaluation, and outpatient CT coronary angiogram.";
   }
 
-  // Sort top contributing factors
+  // Sort top contributing factors by absolute impact descending
   contributions.sort((a, b) => b.impact - a.impact);
 
   return {
     probability,
-    percentage: Math.round(percentage),
+    percentage,
     riskLevel,
     riskColor,
     clinicalAdvice,
-    contributions: contributions.slice(0, 6),
+    contributions: contributions.slice(0, 7),
+  };
+}
+
+/**
+ * Format active patient vitals for clean HUD telemetry display
+ */
+export function getActivePatientSummary(p: PatientInputs) {
+  const cpMap: Record<string, string> = {
+    asymptomatic: "Asymptomatic CP",
+    "typical angina": "Typical Angina",
+    "atypical angina": "Atypical Angina",
+    "non-anginal": "Non-Anginal",
+  };
+
+  const thalMap: Record<string, string> = {
+    normal: "Normal Thal",
+    "fixed defect": "Fixed Thal",
+    "reversable defect": "Reversible Thal",
+  };
+
+  const caNum = parseFloat(p.ca);
+  const caText = caNum === 0 ? "0 Vessels" : caNum === 1 ? "1 Vessel" : `${caNum} Vessels`;
+
+  return {
+    demographics: `${p.age}yo ${p.sex} · ${cpMap[p.cp] || p.cp}`,
+    hemodynamics: `BP: ${p.trestbps} mm Hg · Chol: ${p.chol} mg/dl`,
+    cardiacStress: `Max HR: ${p.thalch} bpm · ST Dep: ${p.oldpeak.toFixed(1)} mm`,
+    diagnosticHits: `Fluoroscopy: ${caText} · ${thalMap[p.thal] || p.thal}`,
   };
 }
 
