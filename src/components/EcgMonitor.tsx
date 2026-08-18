@@ -180,13 +180,13 @@ export default function EcgMonitor({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[200px] bg-[#080a0f] rounded-2xl border border-slate-800/90 overflow-hidden shadow-2xl flex flex-col justify-between select-none"
+      className="relative w-full h-[155px] bg-[#07090e] rounded-2xl border border-slate-800/80 overflow-hidden shadow-xl flex flex-col justify-between select-none"
       style={{
-        boxShadow: `inset 0 0 40px rgba(0, 0, 0, 0.8), 0 8px 30px rgba(0, 0, 0, 0.5)`,
+        boxShadow: `inset 0 0 30px rgba(0, 0, 0, 0.9), 0 8px 24px rgba(0, 0, 0, 0.4)`,
       }}
     >
       {/* Top Status & Overlay Header */}
-      <div className="relative z-20 flex items-center justify-between px-4 pt-3 pointer-events-none">
+      <div className="relative z-20 flex items-center justify-between px-4 pt-2.5 pointer-events-none">
         {/* Left: Lead & Monitor Status */}
         <div className="flex items-center gap-2.5">
           <div className="w-6 h-6 rounded-lg bg-slate-900/90 border border-slate-700/60 flex items-center justify-center">
@@ -197,12 +197,12 @@ export default function EcgMonitor({
               <span className="font-mono text-xs font-bold tracking-wider text-slate-200">
                 ECG MONITOR
               </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-cyan-400 font-semibold border border-cyan-500/20">
+              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-cyan-400 font-semibold border border-cyan-500/20">
                 LEAD II
               </span>
             </div>
             <span className="text-[10px] font-mono text-slate-400">
-              25mm/s · 10mm/mV · {clampedSt > 1.0 ? `ST Dep: ${clampedSt.toFixed(1)}mm` : "ST: Normal"}
+              25mm/s &middot; 10mm/mV &middot; {clampedSt > 1.0 ? `ST Dep: ${clampedSt.toFixed(1)}mm` : "ST: Isoelectric"}
             </span>
           </div>
         </div>
@@ -212,20 +212,20 @@ export default function EcgMonitor({
           {/* Synchronized pulsing cardiac dot */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/90 border border-slate-800">
             <span
-              className="w-2.5 h-2.5 rounded-full"
+              className="w-2 h-2 rounded-full"
               style={{
                 backgroundColor: riskColor,
-                boxShadow: `0 0 10px ${riskColor}`,
+                boxShadow: `0 0 8px ${riskColor}`,
                 animation: `ecg-heartbeat ${pulseIntervalSec}s ease-in-out infinite`,
               }}
             />
             <span
-              className="text-2xl font-black font-mono tracking-tight leading-none"
+              className="text-xl font-black font-mono tracking-tight leading-none"
               style={{ color: riskColor }}
             >
               {clampedHr}
             </span>
-            <span className="text-[10px] font-bold text-slate-400 font-mono tracking-wider ml-0.5">
+            <span className="text-[9px] font-bold text-slate-400 font-mono tracking-wider ml-0.5">
               BPM
             </span>
           </div>

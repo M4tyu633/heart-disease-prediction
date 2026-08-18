@@ -135,19 +135,20 @@ export default function HeartDiseaseApp() {
         </div>
 
         {activeTab === "calculator" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left 7 Cols: Patient Biomarkers & Clinical Parameters */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* Real-Time Telemetry ECG Monitor */}
-              <EcgMonitor
-                heartRate={patient.thalch}
-                stDepression={patient.oldpeak}
-                riskPercentage={result.percentage}
-                riskColor={result.riskColor}
-              />
+          <div className="space-y-6">
+            {/* Full-Width Telemetry ECG Lead II Monitor */}
+            <EcgMonitor
+              heartRate={patient.thalch}
+              stDepression={patient.oldpeak}
+              riskPercentage={result.percentage}
+              riskColor={result.riskColor}
+            />
 
-              {/* Section 1: Demographics & Hemodynamics */}
-              <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-5">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Left 7 Cols: Patient Biomarkers & Clinical Parameters */}
+              <div className="lg:col-span-7 space-y-6">
+                {/* Section 1: Demographics & Hemodynamics */}
+                <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-5">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div className="flex items-center gap-2">
                     <Activity className="w-4 h-4 text-sky-400" />
@@ -497,7 +498,8 @@ export default function HeartDiseaseApp() {
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
         {activeTab === "benchmark" && (
           <div className="space-y-8">
