@@ -1,0 +1,53 @@
+[
+  {
+    "name": "Case 1: Low-Risk Healthy Patient",
+    "age": 42,
+    "sex": "Female",
+    "cp": "non-anginal",
+    "trestbps": 118,
+    "chol": 195,
+    "fbs": "False",
+    "restecg": "normal",
+    "thalch": 168,
+    "exang": "False",
+    "oldpeak": 0.0,
+    "slope": "upsloping",
+    "ca": "0.0",
+    "thal": "normal",
+    "expected_risk": "Low (< 15%)"
+  },
+  {
+    "name": "Case 2: Moderate-Risk Borderline Patient",
+    "age": 56,
+    "sex": "Male",
+    "cp": "atypical angina",
+    "trestbps": 138,
+    "chol": 242,
+    "fbs": "False",
+    "restecg": "st-t abnormality",
+    "thalch": 142,
+    "exang": "False",
+    "oldpeak": 1.2,
+    "slope": "flat",
+    "ca": "1.0",
+    "thal": "normal",
+    "expected_risk": "Moderate (~ 45%)"
+  },
+  {
+    "name": "Case 3: High-Risk Critical Cardiac Patient",
+    "age": 67,
+    "sex": "Male",
+    "cp": "asymptomatic",
+    "trestbps": 160,
+    "chol": 286,
+    "fbs": "True",
+    "restecg": "lv hypertrophy",
+    "thalch": 108,
+    "exang": "True",
+    "oldpeak": 2.8,
+    "slope": "downsloping",
+    "ca": "2.0",
+    "thal": "reversable defect",
+    "expected_risk": "High (> 85%)"
+  }
+]

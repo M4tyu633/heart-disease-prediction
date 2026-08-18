@@ -1,0 +1,570 @@
+{
+  "model_name": "Gradient Boosting & Logistic Regression Clinical Ensemble",
+  "num_cols": [
+    "age",
+    "trestbps",
+    "chol",
+    "thalch",
+    "oldpeak"
+  ],
+  "cat_cols": [
+    "sex",
+    "cp",
+    "fbs",
+    "restecg",
+    "exang",
+    "slope",
+    "ca",
+    "thal"
+  ],
+  "num_medians": {
+    "age": 54.0,
+    "trestbps": 130.0,
+    "chol": 223.0,
+    "thalch": 140.0,
+    "oldpeak": 0.5
+  },
+  "num_means": {
+    "age": 53.566757493188014,
+    "trestbps": 132.1485013623978,
+    "chol": 200.85558583106268,
+    "thalch": 137.8324250681199,
+    "oldpeak": 0.8574931880108994
+  },
+  "num_scales": {
+    "age": 9.332360627474966,
+    "trestbps": 17.944996697504056,
+    "chol": 110.11241897316914,
+    "thalch": 25.20527139524876,
+    "oldpeak": 1.0595316606273986
+  },
+  "cat_categories": {
+    "sex": [
+      "Female",
+      "Male"
+    ],
+    "cp": [
+      "asymptomatic",
+      "atypical angina",
+      "non-anginal",
+      "typical angina"
+    ],
+    "fbs": [
+      false,
+      true
+    ],
+    "restecg": [
+      "lv hypertrophy",
+      "normal",
+      "st-t abnormality"
+    ],
+    "exang": [
+      false,
+      true
+    ],
+    "slope": [
+      "downsloping",
+      "flat",
+      "upsloping"
+    ],
+    "ca": [
+      0.0,
+      1.0,
+      2.0,
+      3.0
+    ],
+    "thal": [
+      "fixed defect",
+      "normal",
+      "reversable defect"
+    ]
+  },
+  "lr_weights": {
+    "intercept": 0.6104363035898368,
+    "features": {
+      "age": 0.2471,
+      "trestbps": 0.0428,
+      "chol": -0.3578,
+      "thalch": -0.3218,
+      "oldpeak": 0.454,
+      "sex_Female": -0.5911,
+      "sex_Male": 0.5905,
+      "cp_asymptomatic": 1.0793,
+      "cp_atypical angina": -0.8421,
+      "cp_non-anginal": -0.1834,
+      "cp_typical angina": -0.0544,
+      "fbs_False": -0.1251,
+      "fbs_True": 0.1245,
+      "restecg_lv hypertrophy": -0.1012,
+      "restecg_normal": -0.1298,
+      "restecg_st-t abnormality": 0.2304,
+      "exang_False": -0.4963,
+      "exang_True": 0.4957,
+      "slope_downsloping": -0.2409,
+      "slope_flat": 0.5005,
+      "slope_upsloping": -0.2601,
+      "ca_0.0": -0.9425,
+      "ca_1.0": 0.2429,
+      "ca_2.0": 0.3404,
+      "ca_3.0": 0.3587,
+      "thal_fixed defect": 0.021,
+      "thal_normal": -0.3537,
+      "thal_reversable defect": 0.3321
+    }
+  },
+  "feature_importances": [
+    {
+      "feature": "cp_asymptomatic",
+      "importance": 0.2837
+    },
+    {
+      "feature": "chol",
+      "importance": 0.1487
+    },
+    {
+      "feature": "age",
+      "importance": 0.0944
+    },
+    {
+      "feature": "thalch",
+      "importance": 0.0895
+    },
+    {
+      "feature": "oldpeak",
+      "importance": 0.0793
+    },
+    {
+      "feature": "trestbps",
+      "importance": 0.0434
+    },
+    {
+      "feature": "exang_True",
+      "importance": 0.0351
+    },
+    {
+      "feature": "thal_normal",
+      "importance": 0.0325
+    },
+    {
+      "feature": "sex_Female",
+      "importance": 0.0286
+    },
+    {
+      "feature": "exang_False",
+      "importance": 0.0251
+    },
+    {
+      "feature": "ca_0.0",
+      "importance": 0.0184
+    },
+    {
+      "feature": "cp_atypical angina",
+      "importance": 0.0181
+    },
+    {
+      "feature": "sex_Male",
+      "importance": 0.0175
+    },
+    {
+      "feature": "cp_typical angina",
+      "importance": 0.0121
+    },
+    {
+      "feature": "slope_flat",
+      "importance": 0.0117
+    },
+    {
+      "feature": "restecg_normal",
+      "importance": 0.0117
+    },
+    {
+      "feature": "cp_non-anginal",
+      "importance": 0.0083
+    },
+    {
+      "feature": "fbs_True",
+      "importance": 0.0059
+    },
+    {
+      "feature": "restecg_st-t abnormality",
+      "importance": 0.0059
+    },
+    {
+      "feature": "fbs_False",
+      "importance": 0.0051
+    },
+    {
+      "feature": "thal_reversable defect",
+      "importance": 0.0046
+    },
+    {
+      "feature": "slope_upsloping",
+      "importance": 0.0041
+    },
+    {
+      "feature": "slope_downsloping",
+      "importance": 0.0032
+    },
+    {
+      "feature": "restecg_lv hypertrophy",
+      "importance": 0.0029
+    },
+    {
+      "feature": "ca_3.0",
+      "importance": 0.0027
+    },
+    {
+      "feature": "ca_1.0",
+      "importance": 0.0026
+    },
+    {
+      "feature": "ca_2.0",
+      "importance": 0.0025
+    },
+    {
+      "feature": "thal_fixed defect",
+      "importance": 0.0022
+    }
+  ],
+  "benchmark_metrics": {
+    "Logistic Regression": {
+      "accuracy": 0.8315,
+      "precision": 0.8257,
+      "recall": 0.8824,
+      "f1": 0.8531,
+      "roc_auc": 0.9191,
+      "cv_auc_mean": 0.8845,
+      "cv_auc_std": 0.0145,
+      "confusion_matrix": [
+        [
+          63,
+          19
+        ],
+        [
+          12,
+          90
+        ]
+      ],
+      "roc_curve": {
+        "fpr": [
+          0.0,
+          0.0,
+          0.0,
+          0.0244,
+          0.0244,
+          0.0366,
+          0.0366,
+          0.0488,
+          0.0488,
+          0.0854,
+          0.0854,
+          0.0976,
+          0.0976,
+          0.1098,
+          0.1098,
+          0.122,
+          0.122,
+          0.1341,
+          0.1341,
+          0.1585,
+          0.1585,
+          0.2073,
+          0.2073,
+          0.2195,
+          0.2195,
+          0.2439,
+          0.2439,
+          0.2561,
+          0.2561,
+          0.2927,
+          0.2927,
+          0.3049,
+          0.3049,
+          0.3293,
+          0.3293,
+          0.4268,
+          0.4268,
+          0.4634,
+          0.4634,
+          0.4756,
+          0.4756,
+          0.5488,
+          0.5488,
+          0.8415,
+          0.8415,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.0098,
+          0.5196,
+          0.5196,
+          0.5392,
+          0.5392,
+          0.6667,
+          0.6667,
+          0.6863,
+          0.6863,
+          0.7255,
+          0.7255,
+          0.7451,
+          0.7451,
+          0.7549,
+          0.7549,
+          0.7843,
+          0.7843,
+          0.8039,
+          0.8039,
+          0.8137,
+          0.8137,
+          0.8333,
+          0.8333,
+          0.8824,
+          0.8824,
+          0.902,
+          0.902,
+          0.9216,
+          0.9216,
+          0.9314,
+          0.9314,
+          0.9412,
+          0.9412,
+          0.951,
+          0.951,
+          0.9608,
+          0.9608,
+          0.9706,
+          0.9706,
+          0.9804,
+          0.9804,
+          0.9902,
+          0.9902,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "Random Forest": {
+      "accuracy": 0.8533,
+      "precision": 0.8505,
+      "recall": 0.8922,
+      "f1": 0.8708,
+      "roc_auc": 0.9193,
+      "cv_auc_mean": 0.8913,
+      "cv_auc_std": 0.0186,
+      "confusion_matrix": [
+        [
+          66,
+          16
+        ],
+        [
+          11,
+          91
+        ]
+      ],
+      "roc_curve": {
+        "fpr": [
+          0.0,
+          0.0,
+          0.0,
+          0.0122,
+          0.0122,
+          0.0244,
+          0.0244,
+          0.0366,
+          0.0366,
+          0.061,
+          0.061,
+          0.0732,
+          0.0732,
+          0.0854,
+          0.0854,
+          0.0976,
+          0.0976,
+          0.1341,
+          0.1341,
+          0.1463,
+          0.1463,
+          0.1585,
+          0.1585,
+          0.1829,
+          0.1829,
+          0.1951,
+          0.1951,
+          0.2561,
+          0.2561,
+          0.2683,
+          0.2683,
+          0.2805,
+          0.2805,
+          0.2927,
+          0.2927,
+          0.3171,
+          0.3171,
+          0.3415,
+          0.3415,
+          0.378,
+          0.378,
+          0.4146,
+          0.4146,
+          0.8415,
+          0.8415,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.0098,
+          0.2647,
+          0.2647,
+          0.4118,
+          0.4118,
+          0.4804,
+          0.4804,
+          0.6471,
+          0.6471,
+          0.6765,
+          0.6765,
+          0.6863,
+          0.6863,
+          0.7059,
+          0.7059,
+          0.7451,
+          0.7451,
+          0.7647,
+          0.7647,
+          0.7941,
+          0.7941,
+          0.8137,
+          0.8137,
+          0.8333,
+          0.8333,
+          0.902,
+          0.902,
+          0.9118,
+          0.9118,
+          0.9216,
+          0.9216,
+          0.9314,
+          0.9314,
+          0.951,
+          0.951,
+          0.9608,
+          0.9608,
+          0.9706,
+          0.9706,
+          0.9804,
+          0.9804,
+          0.9902,
+          0.9902,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "Gradient Boosting": {
+      "accuracy": 0.8424,
+      "precision": 0.8288,
+      "recall": 0.902,
+      "f1": 0.8638,
+      "roc_auc": 0.9171,
+      "cv_auc_mean": 0.8809,
+      "cv_auc_std": 0.0156,
+      "confusion_matrix": [
+        [
+          63,
+          19
+        ],
+        [
+          10,
+          92
+        ]
+      ],
+      "roc_curve": {
+        "fpr": [
+          0.0,
+          0.0,
+          0.0,
+          0.0122,
+          0.0122,
+          0.0244,
+          0.0244,
+          0.0366,
+          0.0366,
+          0.0488,
+          0.0488,
+          0.061,
+          0.061,
+          0.0732,
+          0.0732,
+          0.0976,
+          0.0976,
+          0.122,
+          0.122,
+          0.1463,
+          0.1463,
+          0.1707,
+          0.1707,
+          0.1829,
+          0.1829,
+          0.2317,
+          0.2317,
+          0.2683,
+          0.2683,
+          0.2927,
+          0.2927,
+          0.3171,
+          0.3171,
+          0.3902,
+          0.3902,
+          0.6829,
+          0.6829,
+          0.7561,
+          0.7561,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          0.0098,
+          0.3627,
+          0.3627,
+          0.3725,
+          0.3725,
+          0.4706,
+          0.4706,
+          0.5392,
+          0.5392,
+          0.549,
+          0.549,
+          0.6373,
+          0.6373,
+          0.7059,
+          0.7059,
+          0.7451,
+          0.7451,
+          0.7843,
+          0.7843,
+          0.8333,
+          0.8333,
+          0.8431,
+          0.8431,
+          0.8725,
+          0.8725,
+          0.902,
+          0.902,
+          0.9412,
+          0.9412,
+          0.9608,
+          0.9608,
+          0.9706,
+          0.9706,
+          0.9804,
+          0.9804,
+          0.9902,
+          0.9902,
+          1.0,
+          1.0
+        ]
+      }
+    }
+  }
+}
