@@ -18,6 +18,8 @@ import {
   Printer,
   ChevronDown,
   ChevronUp,
+  Database,
+  ExternalLink,
 } from "lucide-react";
 import {
   PatientInputs,
@@ -777,6 +779,266 @@ export default function HeartDiseaseApp() {
                     <strong className="text-slate-200">1, 2, 3, 4 (Disease):</strong> &gt; 50% diameter stenosis in 1 to 4 major epicardial coronary arteries.
                   </li>
                 </ul>
+              </div>
+
+              {/* External Dataset Links */}
+              <div className="mt-6 border-t border-slate-800 pt-6 space-y-3">
+                <h3 className="text-sm font-bold text-slate-200 uppercase font-mono tracking-wider flex items-center gap-2">
+                  <Database className="w-4 h-4 text-rose-400" />
+                  <span>Public Dataset Access &amp; Code Sources</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                  <a
+                    href="https://archive.ics.uci.edu/dataset/45/heart+disease"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between p-4 rounded-xl bg-[#121620] hover:bg-[#161c28] border border-slate-800 hover:border-rose-500/40 transition group"
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-slate-200 group-hover:text-rose-400 transition flex items-center gap-1.5">
+                        <span>UCI ML Repository</span>
+                        <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1">Official UCI Heart Disease (ID 45)</p>
+                    </div>
+                  </a>
+
+                  <a
+                    href="https://www.kaggle.com/datasets/redwankarimsony/heart-disease-data"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between p-4 rounded-xl bg-[#121620] hover:bg-[#161c28] border border-slate-800 hover:border-rose-500/40 transition group"
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-slate-200 group-hover:text-rose-400 transition flex items-center gap-1.5">
+                        <span>Kaggle Dataset Hub</span>
+                        <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1">Cleaned 920-row Consolidated CSV</p>
+                    </div>
+                  </a>
+
+                  <a
+                    href="https://github.com/M4tyu633/heart-disease-prediction"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between p-4 rounded-xl bg-[#121620] hover:bg-[#161c28] border border-slate-800 hover:border-rose-500/40 transition group"
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-slate-200 group-hover:text-rose-400 transition flex items-center gap-1.5">
+                        <span>GitHub Repository</span>
+                        <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100" />
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1">Source Code &amp; Python Training Pipeline</p>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              {/* Detailed Technical Data Cleaning & Preprocessing Breakdown */}
+              <div className="mt-6 border-t border-slate-800 pt-6 space-y-6">
+                <div className="border-b border-slate-800/80 pb-3">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <h3 className="text-sm font-bold text-slate-100 uppercase font-mono tracking-wider">
+                      Technical Data Cleaning &amp; Feature Engineering Pipeline
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1 font-sans">
+                    End-to-end scikit-learn preprocessing architecture designed to handle severe non-random multi-hospital missingness without target leakage.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Step 1 */}
+                  <div className="p-4 rounded-xl bg-[#121620] border border-slate-800/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-rose-400 font-mono">STEP 01</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20">
+                        Ingestion &amp; Missingness
+                      </span>
+                    </div>
+                    <h4 className="text-xs font-bold text-slate-200">
+                      Multi-Hospital Non-Random Missingness Profiling
+                    </h4>
+                    <p className="text-[11px] text-slate-300 leading-relaxed font-sans">
+                      The 920-patient cohort pools 4 clinical hospitals. Because diagnostic protocols differed across institutions, advanced tests exhibited severe missingness: <strong>ca (fluoroscopy, 611 missing)</strong> and <strong>thal (thallium scintigraphy, 486 missing)</strong>, alongside 0 mg/dl dummy codes for serum cholesterol in the Budapest and Long Beach subsamples.
+                    </p>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="p-4 rounded-xl bg-[#121620] border border-slate-800/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-rose-400 font-mono">STEP 02</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 border border-sky-500/20">
+                        Median Imputation
+                      </span>
+                    </div>
+                    <h4 className="text-xs font-bold text-slate-200">
+                      Robust Continuous Imputation &amp; Z-Standardization
+                    </h4>
+                    <p className="text-[11px] text-slate-300 leading-relaxed font-sans">
+                      Continuous vitals (<code>age</code>, <code>trestbps</code>, <code>chol</code>, <code>thalach</code>, <code>oldpeak</code>) were cleaned using median imputation via <code>SimpleImputer(strategy=&quot;median&quot;)</code>, preventing distortion from extreme hemodynamic outliers, followed by parametric standardization (<code>StandardScaler</code>) fit strictly inside training folds.
+                    </p>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="p-4 rounded-xl bg-[#121620] border border-slate-800/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-rose-400 font-mono">STEP 03</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                        Categorical Encoding
+                      </span>
+                    </div>
+                    <h4 className="text-xs font-bold text-slate-200">
+                      Categorical Imputation &amp; Sparse One-Hot Expansion
+                    </h4>
+                    <p className="text-[11px] text-slate-300 leading-relaxed font-sans">
+                      Categorical variables (<code>sex</code>, <code>cp</code>, <code>fbs</code>, <code>restecg</code>, <code>exang</code>, <code>slope</code>, <code>ca</code>, <code>thal</code>) were imputed with mode tracking (<code>most_frequent</code>) and transformed into binary dummy vectors using <code>OneHotEncoder(handle_unknown=&quot;ignore&quot;)</code> to ensure robust inference on unseen feature combinations.
+                    </p>
+                  </div>
+
+                  {/* Step 4 */}
+                  <div className="p-4 rounded-xl bg-[#121620] border border-slate-800/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-rose-400 font-mono">STEP 04</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        Leakage-Free CV
+                      </span>
+                    </div>
+                    <h4 className="text-xs font-bold text-slate-200">
+                      ColumnTransformer Pipeline &amp; Stratified Validation
+                    </h4>
+                    <p className="text-[11px] text-slate-300 leading-relaxed font-sans">
+                      All transformations were wrapped inside a unified scikit-learn <code>Pipeline</code> and evaluated under <strong>5-Fold Stratified Cross-Validation</strong> (<code>StratifiedKFold</code>, shuffle=True, n=5) and a 20% holdout test set (n=184), guaranteeing zero information leakage from validation sets into scaling statistics.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Code Pipeline Architecture Block */}
+                <div className="p-4 rounded-xl bg-[#080b11] border border-slate-800 space-y-2 font-mono text-[11px]">
+                  <div className="flex items-center justify-between text-slate-400 border-b border-slate-800/80 pb-2">
+                    <span className="text-rose-400 font-bold">Python Scikit-Learn Pipeline Architecture</span>
+                    <span className="text-[10px] text-slate-500">train.py:L39-L56</span>
+                  </div>
+                  <pre className="text-slate-300 overflow-x-auto leading-relaxed py-1">
+{`num_pipeline = Pipeline([
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler", StandardScaler()),
+])
+
+cat_pipeline = Pipeline([
+    ("imputer", SimpleImputer(strategy="most_frequent")),
+    ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+])
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("num", num_pipeline, ["age", "trestbps", "chol", "thalch", "oldpeak"]),
+        ("cat", cat_pipeline, ["sex", "cp", "fbs", "restecg", "exang", "slope", "ca", "thal"]),
+    ]
+)`}
+                  </pre>
+                </div>
+              </div>
+
+              {/* Biomarker Dictionary */}
+              <div className="mt-6 border-t border-slate-800 pt-6 space-y-4">
+                <h3 className="text-sm font-bold text-slate-200 uppercase font-mono tracking-wider">
+                  Biomarker Dictionary &amp; Clinical Descriptions
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-slate-400 font-mono">
+                        <th className="py-2.5 px-3">Variable</th>
+                        <th className="py-2.5 px-3">Clinical Name</th>
+                        <th className="py-2.5 px-3">Type</th>
+                        <th className="py-2.5 px-3">Diagnostic Significance</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">age</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">Patient Age</td>
+                        <td className="py-2 px-3 text-slate-400">Continuous</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Age in completed solar years. Cumulative atherosclerotic risk.</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">sex</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">Biological Sex</td>
+                        <td className="py-2 px-3 text-slate-400">Binary</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Male / Female baseline prevalence distribution.</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">cp</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">Chest Pain Type</td>
+                        <td className="py-2 px-3 text-slate-400">Categorical (1-4)</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Typical angina, atypical angina, non-anginal, or asymptomatic (silent ischemia).</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">trestbps</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">Resting Blood Pressure</td>
+                        <td className="py-2 px-3 text-slate-400">Continuous (mm Hg)</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Resting systemic arterial pressure on admission.</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">chol</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">Serum Cholesterol</td>
+                        <td className="py-2 px-3 text-slate-400">Continuous (mg/dl)</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Total serum cholesterol concentration.</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">fbs</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">Fasting Blood Sugar</td>
+                        <td className="py-2 px-3 text-slate-400">Binary</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Fasting glucose &gt; 120 mg/dl indicator for diabetes risk.</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">restecg</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">Resting ECG</td>
+                        <td className="py-2 px-3 text-slate-400">Categorical (0-2)</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Normal, ST-T wave abnormality, or Estes criterion LV hypertrophy.</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">thalach</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">Max Heart Rate</td>
+                        <td className="py-2 px-3 text-slate-400">Continuous (bpm)</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Maximum heart rate achieved during Bruce treadmill stress test.</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">exang</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">Exercise Angina</td>
+                        <td className="py-2 px-3 text-slate-400">Binary</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Presence of exertional angina provoked by stress test.</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">oldpeak</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">ST Depression</td>
+                        <td className="py-2 px-3 text-slate-400">Continuous (mm)</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">ST segment depression induced by exercise relative to rest.</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">slope</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">ST Segment Slope</td>
+                        <td className="py-2 px-3 text-slate-400">Categorical (1-3)</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Slope of peak exercise ST segment (upsloping, flat, downsloping).</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">ca</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">Fluoroscopy Vessels</td>
+                        <td className="py-2 px-3 text-slate-400">Discrete (0-3)</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Number of major coronary vessels colored by fluoroscopy.</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-3 font-bold text-rose-400">thal</td>
+                        <td className="py-2 px-3 font-sans text-slate-200">Thallium Scintigraphy</td>
+                        <td className="py-2 px-3 text-slate-400">Categorical</td>
+                        <td className="py-2 px-3 font-sans text-slate-300">Myocardial perfusion scintigraphy (normal, fixed defect, reversible defect).</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
