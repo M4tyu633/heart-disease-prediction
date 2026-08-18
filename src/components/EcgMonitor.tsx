@@ -16,12 +16,7 @@ export interface EcgMonitorProps {
 
 /**
  * Dynamic Hospital Lead II ECG Telemetry Monitor
- * Reacts in real-time to multi-parametric patient biomarkers:
- * - Heart Rate (thalach) -> RR interval compression & sweep cadence
- * - ST Depression (oldpeak) -> J-point & ST segment displacement
- * - ST Segment Slope (slope) -> Upsloping, flat ischemic plateau, or downsloping strain
- * - Resting ECG (restecg) -> Left Ventricular Hypertrophy (tall R/deep S/strain) or ST-T wave inversion
- * - Exercise Angina (exang) & BP -> Ischemic stress jitter & QRS duration broadening
+ * Safely calibrated voltage scaling to prevent text clipping
  */
 export default function EcgMonitor({
   heartRate = 75,
@@ -48,10 +43,10 @@ export default function EcgMonitor({
   const isSttAbnormal = restEcg === "st-t abnormality";
   const isExang = exang === "True";
 
-  // Virtual canvas geometry
+  // Virtual canvas geometry (Calibrated with ample top header clearance)
   const WIDTH = 800;
-  const HEIGHT = 160;
-  const BASE_Y = 88;
+  const HEIGHT = 175;
+  const BASE_Y = 104;
   const ERASE_GAP = 32;
 
   /**
@@ -59,9 +54,9 @@ export default function EcgMonitor({
    */
   const getPqrstY = (t: number, xPos: number): number => {
     // Subtle physiological baseline respiration wander
-    const respiration = 0.8 * Math.sin((xPos / WIDTH) * 2 * Math.PI) + 0.3 * Math.sin(xPos * 0.16);
+    const respiration = 0.6 * Math.sin((xPos / WIDTH) * 2 * Math.PI) + 0.25 * Math.sin(xPos * 0.16);
     // Ischemic micro-flutter if exercise angina is provoked
-    const ischemicJitter = isExang ? 0.6 * Math.sin(xPos * 1.8) * Math.cos(xPos * 0.9) : 0;
+    const ischemicJitter = isExang ? 0.45 * Math.sin(xPos * 1.8) * Math.cos(xPos * 0.9) : 0;
     const wander = respiration + ischemicJitter;
 
     // 1. Isoelectric Baseline (TP interval)
@@ -72,12 +67,12 @@ export default function EcgMonitor({
     // 2. P Wave (Atrial depolarization, ~0.10s)
     if (t < 0.20) {
       const pProgress = (t - 0.08) / 0.12;
-      const pAmp = isLvh ? 9.5 : 7.0; // P mitrale tendency in LVH
+      const pAmp = isLvh ? 7.5 : 5.8;
       const pDeflection = pAmp * Math.pow(Math.sin(pProgress * Math.PI), 1.3);
       return BASE_Y - pDeflection + wander;
     }
 
-    // 3. PR Segment (AV node isoelectric conduction delay)
+    // 3. PR Segment (AV node isoelectric delay)
     if (t < 0.30) {
       return BASE_Y + wander;
     }
@@ -85,14 +80,14 @@ export default function EcgMonitor({
     // 4. Q Wave (Septal depolarization notch)
     if (t < 0.34) {
       const qProgress = (t - 0.30) / 0.04;
-      const qAmp = isLvh ? 7.5 : 5.0;
+      const qAmp = isLvh ? 6.0 : 4.0;
       const qDeflection = qAmp * Math.sin(qProgress * Math.PI);
       return BASE_Y + qDeflection + wander;
     }
 
     // 5. R Wave (Ventricular Depolarization)
-    // LVH introduces high-voltage R waves (+25-30% amplitude)
-    const rHeight = isLvh ? 84.0 : 66.0;
+    // Calibrated height: Peak reaches y = 50px (LVH) or y = 60px (normal), safely below top text
+    const rHeight = isLvh ? 54.0 : 43.0;
     if (t < 0.40) {
       const rProgress = (t - 0.34) / 0.06;
       let rDeflection: number;
@@ -107,8 +102,7 @@ export default function EcgMonitor({
     }
 
     // 6. S Wave (Late ventricular depolarization)
-    // LVH deepens the S wave significantly
-    const sDepth = isLvh ? 26.0 : 17.5;
+    const sDepth = isLvh ? 19.0 : 13.5;
     if (t < 0.45) {
       const sProgress = (t - 0.40) / 0.05;
       const sDeflection = sDepth * Math.sin(sProgress * Math.PI);
@@ -116,19 +110,16 @@ export default function EcgMonitor({
     }
 
     // 7. ST Segment & J-Point
-    // Oldpeak ST depression + dynamic ST slope morphology
-    let stOffset = clampedSt * 4.2;
-    if (isLvh && stOffset < 4) stOffset = 6.5; // Secondary repolarization strain in LVH
+    let stOffset = clampedSt * 3.2;
+    if (isLvh && stOffset < 3.5) stOffset = 4.5; // Secondary strain in LVH
 
     if (t < 0.62) {
       const stProgress = (t - 0.45) / 0.17;
       let slopeModifier = 0;
       if (slope === "downsloping") {
-        // Downward sagging from J point
-        slopeModifier = 5.0 * stProgress;
+        slopeModifier = 4.0 * stProgress;
       } else if (slope === "upsloping") {
-        // Quick ascent back toward baseline
-        slopeModifier = -4.5 * stProgress;
+        slopeModifier = -3.5 * stProgress;
       }
 
       const blend = Math.sin(stProgress * (Math.PI / 2));
@@ -136,31 +127,29 @@ export default function EcgMonitor({
     }
 
     // 8. T Wave (Ventricular Repolarization)
-    // In ST-T abnormality or severe LVH strain, T wave inverts negatively!
     if (t < 0.82) {
       const tProgress = (t - 0.62) / 0.20;
       const shouldInvertT = isSttAbnormal || (isLvh && clampedSt > 1.0);
 
       if (shouldInvertT) {
-        // Inverted T-Wave (negative deflection below baseline)
-        const tWave = 13.0 * Math.sin(Math.pow(tProgress, 0.9) * Math.PI);
+        // Inverted T-Wave (negative deflection)
+        const tWave = 10.5 * Math.sin(Math.pow(tProgress, 0.9) * Math.PI);
         const stRecovery = stOffset * (1 - tProgress);
         return BASE_Y + stRecovery + tWave + wander;
       } else {
         // Normal positive asymmetric T-Wave
-        const tWave = 14.5 * Math.sin(Math.pow(tProgress, 0.85) * Math.PI);
+        const tWave = 11.5 * Math.sin(Math.pow(tProgress, 0.85) * Math.PI);
         const stRecovery = stOffset * (1 - tProgress);
         return BASE_Y + stRecovery - tWave + wander;
       }
     }
 
-    // 9. TP Segment (Diastolic isoelectric rest)
+    // 9. TP Segment (Diastolic isoelectric pause)
     return BASE_Y + wander;
   };
 
-  // Generate the full SVG path across width
+  // Generate full SVG path across width
   const { pathData, beatWidth } = useMemo(() => {
-    // Dynamic beat rate per screen based on heart rate
     const beatsPerScreen = Math.max(2.4, (clampedHr / 60) * 2.8);
     const bWidth = WIDTH / beatsPerScreen;
 
@@ -244,15 +233,15 @@ export default function EcgMonitor({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[165px] bg-[#06080d] rounded-2xl border border-slate-800/90 overflow-hidden shadow-2xl flex flex-col justify-between select-none"
+      className="relative w-full h-[175px] bg-[#06080d] rounded-2xl border border-slate-800/90 overflow-hidden shadow-2xl flex flex-col justify-between select-none"
       style={{
         boxShadow: `inset 0 0 35px rgba(0, 0, 0, 0.95), 0 8px 24px rgba(0, 0, 0, 0.5)`,
       }}
     >
       {/* Top Status Header */}
-      <div className="relative z-20 flex items-center justify-between px-4 pt-2.5 pointer-events-none">
+      <div className="relative z-20 flex items-center justify-between px-4 pt-3 pointer-events-none bg-gradient-to-b from-[#06080d]/80 via-[#06080d]/40 to-transparent">
         <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded-lg bg-[#0e121a] border border-slate-700/80 flex items-center justify-center">
+          <div className="w-6 h-6 rounded-lg bg-[#0e121a] border border-slate-700/80 flex items-center justify-center shadow-sm">
             <Activity className="w-3.5 h-3.5" style={{ color: riskColor }} />
           </div>
           <div className="flex flex-col">
@@ -438,7 +427,7 @@ export default function EcgMonitor({
           </g>
 
           {/* 3. Sweep Cursor with Laser and Head Dot */}
-          <g ref={sweepCursorRef} transform="translate(0, 88)">
+          <g ref={sweepCursorRef} transform="translate(0, 104)">
             <line
               x1="0"
               y1={-BASE_Y}
@@ -467,7 +456,7 @@ export default function EcgMonitor({
       </div>
 
       {/* Bottom Telemetry Bar */}
-      <div className="relative z-20 flex items-center justify-between px-4 pb-2.5 text-[10px] font-mono text-slate-400 pointer-events-none">
+      <div className="relative z-20 flex items-center justify-between px-4 pb-2.5 text-[10px] font-mono text-slate-400 pointer-events-none bg-gradient-to-t from-[#06080d]/80 via-[#06080d]/40 to-transparent">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
