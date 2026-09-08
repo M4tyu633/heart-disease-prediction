@@ -2,8 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CardioSense AI — Heart Disease Risk Prediction Station",
-  description: "An interactive clinical decision support system for coronary artery disease prediction trained on the 920-patient UCI Heart Disease dataset.",
+  title: "CardioSense — A transparent risk instrument",
+  description:
+    "Explore the exported Logistic Regression model on UCI Heart Disease inputs, with signed contributions and local browser inference. Research demonstration.",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
