@@ -120,7 +120,7 @@ export default function CardioSense() {
       <header className="cs-nav">
         <a className="cs-brand" href="#station">
           Cardio<span>Sense</span>
-          <small>Risk instrument / 01</small>
+          <small>A model you can understand</small>
         </a>
         <nav aria-label="Main">
           <a href="#station">Instrument</a>
@@ -134,10 +134,10 @@ export default function CardioSense() {
             <p className="cs-label">
               UCI Heart Disease / Research demonstration
             </p>
-            <h1>What moved the score?</h1>
+            <h1>Understand the score.</h1>
             <p>
-              Change a biomarker. Follow its contribution through to the model
-              output.
+              Start with a sample. Change a measurement. See exactly which
+              terms move the model’s prediction.
             </p>
           </div>
           <span className="local-badge">● Computed in your browser</span>
@@ -170,7 +170,7 @@ export default function CardioSense() {
           <section className="cs-inputs" aria-labelledby="inputs-title">
             <div className="panel-heading">
               <span>01 / Input</span>
-              <h2 id="inputs-title">Biomarkers</h2>
+              <h2 id="inputs-title">Explore the inputs</h2>
             </div>
             <div className="numeric-inputs">
               {numericFields.map((f) => (
@@ -215,7 +215,7 @@ export default function CardioSense() {
                 </label>
               ))}
             </div>
-            <details className="diagnostic-inputs" open>
+            <details className="diagnostic-inputs">
               <summary>Diagnostic markers</summary>
               <div>
                 {categories.map((f) => (
@@ -299,9 +299,15 @@ export default function CardioSense() {
               <span>03 / Output</span>
               <h2 id="output-title">Model probability</h2>
             </div>
+            <div className="probability-visual">
+              <svg viewBox="0 0 220 130" aria-hidden="true">
+                <path d="M25 110 A85 85 0 0 1 195 110" pathLength="100" fill="none" stroke="var(--gauge-track)" strokeWidth="12" strokeLinecap="round" />
+                <path d="M25 110 A85 85 0 0 1 195 110" pathLength="100" fill="none" stroke="var(--signal)" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${result.probability * 100} 100`} className="gauge-value" />
+              </svg>
             <div className="probability" aria-live="polite">
               <strong>{(result.probability * 100).toFixed(1)}</strong>
               <span>%</span>
+            </div>
             </div>
             <p className="output-target">
               UCI disease target
@@ -356,8 +362,8 @@ export default function CardioSense() {
               categorical terms; it does not run the tree models or a SHAP
               explainer.
             </p>
-            <a href="https://github.com/M4tyu633/heart-disease-prediction">
-              Inspect the source & training pipeline ↗
+            <a href="https://matthewlabrador.vercel.app/work/heart-disease-prediction">
+              Explore the model methodology ↗
             </a>
           </div>
           <div className="benchmark-list">
